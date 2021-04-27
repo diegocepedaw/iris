@@ -12,7 +12,7 @@ db: &db
     kwargs:
       scheme: mysql+pymysql
       user: root
-      password: ""
+      password: "1234"
       host: 127.0.0.1
       database: iris
       charset: utf8
@@ -21,8 +21,8 @@ db: &db
   kwargs:
     pool_recycle: 3600
     echo: False
-    pool_size: 100
-    max_overflow: 100
+    pool_size: 300
+    max_overflow: 300
     pool_timeout: 60
 
 # # Specify different connection settings for side scripts
@@ -97,12 +97,12 @@ webhooks:
   - alertmanager
 
 ## custom incident handler can be created to do additional tasks after incident creation
-# custom_incident_handler_module: iris.custom_incident_handler
+custom_incident_handler_module: iris.custom_incident_handler
 
 ## allows listed applications to access internal API endpoints that return sensitive data including application API keys
 ## this should only be used by applications that are essentially extensions of iris itself like a custom sender
-# allowlisted_internal_apps:
-#   - iris-internal-application
+allowlisted_internal_apps:
+  - iris
 
 #####################
 ### Iris-sender
@@ -176,7 +176,7 @@ role_lookups:
   #- oncall # oncall service integration
   - dummy # dummy role lookup used for testing purposes. Disable this in production.
 
-oncall-api: http://localhost:8080  # oncall url
+oncall-api: https://oncall.stg.linkedin.com/ # oncall url
 oncall-app: app # application for oncall auth
 oncall-key: abc # API key for oncall auth
 
