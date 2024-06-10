@@ -2072,16 +2072,17 @@ class Incidents(object):
                                           'WHERE `plan_id` = :plan_id',
                                           {'plan_id': plan_id}).scalar()
 
-            # check if plan has dynamic_tracking enabled
-            dynamic_tracking_plan = session.execute('''
-                SELECT EXISTS (
-                SELECT 1 FROM `plan`WHERE `id` = :plan_id
-                AND `dynamic_tracking` = 1
-                )
-            ''', {'plan_id': plan_id}).scalar()
+            if len(dynamic_tracking_notifications) > 0:
+                # check if plan has dynamic_tracking enabled
+                dynamic_tracking_plan = session.execute('''
+                    SELECT EXISTS (
+                    SELECT 1 FROM `plan`WHERE `id` = :plan_id
+                    AND `dynamic_tracking` = 1
+                    )
+                ''', {'plan_id': plan_id}).scalar()
 
-            if not dynamic_tracking_plan and dynamic_tracking_notifications:
-                raise HTTPBadRequest('Invalid plan', 'Plan does not have dynamic tracking enabled')
+                if not dynamic_tracking_plan:
+                    raise HTTPBadRequest('Invalid plan', 'Plan does not have dynamic tracking enabled')
 
             # Support overriding the app which created this incident
             if 'application' in incident_params:
@@ -2142,11 +2143,12 @@ class Incidents(object):
             if not app_template_count:
                 raise HTTPBadRequest('No plan template actions exist for this app')
 
-            mode_results = session.execute('SELECT `id`, `name` FROM `mode`')
-            mode_ids = {row['name']: row['id'] for row in mode_results}
-            for notification in dynamic_tracking_notifications:
-                if notification['mode'] not in mode_ids:
-                    raise HTTPBadRequest('invalid mode %s specified for dynamic_tracking_notifications' % notification['mode'])
+            if len(dynamic_tracking_notifications) > 0:
+                mode_results = session.execute('SELECT `id`, `name` FROM `mode`')
+                mode_ids = {row['name']: row['id'] for row in mode_results}
+                for notification in dynamic_tracking_notifications:
+                    if notification['mode'] not in mode_ids:
+                        raise HTTPBadRequest('invalid mode %s specified for dynamic_tracking_notifications' % notification['mode'])
 
         # To try to avoid deadlocks, split the inserts into their own session
         retries = 0
