@@ -1313,6 +1313,7 @@ class Plans(object):
                      "tracking_type": null,
                      "tracking_template": null,
                      "tracking_key": null,
+                     "dynamic_tracking": 1,
                      "active": 1,
                      "id": 123456,
                      "name": "foo-sla0"
@@ -1560,7 +1561,10 @@ class Plans(object):
         The total time of all plan steps can not exceed 24 hours.
 
         '''
-        plan_params = ujson.loads(req.context['body'])
+        try:
+            plan_params = ujson.loads(req.context['body'])
+        except ValueError:
+            raise falcon.HTTPBadRequest('Invalid JSON', 'Could not parse the request body as JSON.')
         try:
             run_validation('plan', plan_params)
         except IrisValidationException as e:
@@ -1591,6 +1595,7 @@ class Plans(object):
         tracking_key = plan_params.get('tracking_key')
         tracking_type = plan_params.get('tracking_type')
         tracking_template = plan_params.get('tracking_template')
+        dynamic_tracking = 1 if plan_params.get('dynamic_tracking') else 0
         is_valid, err_msg = is_valid_tracking_settings(tracking_type, tracking_key, tracking_template)
         if not is_valid:
             raise HTTPBadRequest('Invalid tracking template', err_msg)
@@ -1614,6 +1619,7 @@ class Plans(object):
             'tracking_key': tracking_key,
             'tracking_type': tracking_type,
             'tracking_template': tracking_template,
+            'dynamic_tracking': dynamic_tracking
         }
 
         dynamic_indices = set()
