@@ -2013,13 +2013,54 @@ class Incidents(object):
             ]
 
         This will map target 0 to the user "jdoe", and target 1 to the team "team-foo".
-        '''
-        incident_params = ujson.loads(req.context['body'])
-        dynamic_targets = []
-        if 'plan' not in incident_params:
-            raise HTTPBadRequest('missing plan name attribute')
 
-        app = req.context['app']
+        To use dynamic tracking you can pass a dynamic_tracking_notifications list in the incident_params. If the plan has dynamic tracking enabled, the incident will be created with the dynamic tracking notifications specified in the incident_params. The tracking message will use the tracking template specified in the plan.
+
+        .. sourcecode:: json
+
+        "dynamic_tracking_notifications": [{"mode": "slack", "destination": "#iris-slack-testing"}, {"mode": "slack", "destination": "#iris-slack-testing2"}]
+        '''
+        try:
+            incident_params = ujson.loads(req.context["body"])
+        except ValueError:
+            raise falcon.HTTPBadRequest(
+                "Invalid JSON", "Could not parse the request body as JSON."
+            )
+        dynamic_targets = []
+        if "plan" not in incident_params:
+            raise HTTPBadRequest("missing plan name attribute")
+
+        app = req.context["app"]
+
+        dynamic_tracking_notifications = incident_params.get(
+            "dynamic_tracking_notifications", []
+        )
+        if not isinstance(dynamic_tracking_notifications, list):
+            raise falcon.HTTPBadRequest(
+                "Invalid Format", "dynamic_tracking_notifications should be a list."
+            )
+        for notification in dynamic_tracking_notifications:
+            if not isinstance(notification, dict):
+                raise falcon.HTTPBadRequest(
+                    "Invalid Format", "Each notification should be a dictionary."
+                )
+            if "mode" not in notification or not isinstance(notification["mode"], str):
+                raise falcon.HTTPBadRequest(
+                    "Invalid Format", "Each notification should have a string mode."
+                )
+            if "destination" not in notification or not isinstance(
+                notification["destination"], str
+            ):
+                raise falcon.HTTPBadRequest(
+                    "Invalid Format",
+                    "Each notification should have a string destination.",
+                )
+            if len(notification["destination"]) >= 255:
+                raise falcon.HTTPBadRequest(
+                    "Invalid Format",
+                    "Each notification destination should be less than 255 characters.",
+                )
+        mode_ids = {}
 
         with db.guarded_session() as session:
             plan_id = session.execute('SELECT `plan_id` FROM `plan_active` WHERE `name` = :plan',
@@ -2030,6 +2071,18 @@ class Incidents(object):
             num_dynamic = session.execute('SELECT COUNT(DISTINCT `dynamic_index`) FROM `plan_notification` '
                                           'WHERE `plan_id` = :plan_id',
                                           {'plan_id': plan_id}).scalar()
+
+            if len(dynamic_tracking_notifications) > 0:
+                # check if plan has dynamic_tracking enabled
+                dynamic_tracking_plan = session.execute('''
+                    SELECT EXISTS (
+                    SELECT 1 FROM `plan`WHERE `id` = :plan_id
+                    AND `dynamic_tracking` = 1
+                    )
+                ''', {'plan_id': plan_id}).scalar()
+
+                if not dynamic_tracking_plan:
+                    raise HTTPBadRequest('Invalid plan', 'Plan does not have dynamic tracking enabled')
 
             # Support overriding the app which created this incident
             if 'application' in incident_params:
