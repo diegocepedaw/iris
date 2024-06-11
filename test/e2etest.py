@@ -1541,7 +1541,7 @@ def test_post_dynamic_incident(sample_user, sample_team, sample_application_name
     incident_response = re.json()
     incident_response.pop('created')
     incident_response.pop('id')
-    assert re.json() == incident_data
+    assert incident_response == incident_data
 
     # Claim
     re = requests.post(base_url + 'incidents/%d' % (incident_id, ), json={
