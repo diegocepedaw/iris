@@ -3486,6 +3486,8 @@ def test_dynamic_tracking_notification(sample_plan_name, sample_application_name
     assert re.status_code == 400
     assert re.json()['title'] == 'Invalid plan for dynamic tracking'
 
+    assert (sample_plan_name, sample_plan_name2) == ('demo-test-foo')
+
     # create an incident
     re = requests.post(base_url + 'incidents',
                        json={"plan": "demo-test-incident-post", "context": {}, "dynamic_tracking_notifications": [{"mode": "slack", "destination": "#iris-slack-testing"}]},
