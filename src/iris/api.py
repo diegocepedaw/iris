@@ -2361,11 +2361,11 @@ class Incident(object):
 
             incident['context'] = ujson.loads(incident['context'])
             # retrieve dynamic_tracking_notification for each incident
-            cursor.execute(incident_dynamic_tracking_notifications_query, [(incident['id'],)])
-            dynamic_tracking_results = cursor.fetchall()
-            incident['dynamic_tracking'] = []
-            for tracking in dynamic_tracking_results:
-                incident['dynamic_tracking'].append(tracking)
+            # cursor.execute(incident_dynamic_tracking_notifications_query, [(incident['id'],)])
+            # dynamic_tracking_results = cursor.fetchall()
+            # incident['dynamic_tracking'] = []
+            # for tracking in dynamic_tracking_results:
+            #     incident['dynamic_tracking'].append(tracking)
             payload = ujson.dumps(incident)
         else:
             connection.close()
