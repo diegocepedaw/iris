@@ -3479,7 +3479,8 @@ def test_get_allowed_tags(superuser_application):
     }
     assert response == expected
 
-def test_dynamic_tracking_notification(sample_plan_name, sample_application_name):
+
+def test_dynamic_tracking_notification_fail(sample_plan_name, sample_application_name):
 
     # create an incident with dynamic tracking notification agaings a plan that doesn't have them enabled
     re = requests.post(base_url + 'incidents',
