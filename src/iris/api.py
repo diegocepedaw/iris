@@ -2084,7 +2084,6 @@ class Incidents(object):
                 if not dynamic_tracking_plan:
                     raise HTTPBadRequest('Invalid plan for dynamic tracking', 'Plan does not have dynamic tracking enabled')
 
-
             # Support overriding the app which created this incident
             if 'application' in incident_params:
                 if not req.context['app']['allow_other_app_incidents']:
