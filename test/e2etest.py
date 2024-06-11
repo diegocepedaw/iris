@@ -3495,6 +3495,7 @@ def test_dynamic_tracking_notification(sample_plan_name, sample_application_name
     assert incident_id
 
     re = requests.get(base_url + 'incidents/%d' % incident_id)
+    assert re.json() == {}
     assert re.status_code == 200
     response = re.json()
     assert response['dynamic_tracking_notifications'] == [{"mode": "slack", "destination": "#iris-slack-testing"}]

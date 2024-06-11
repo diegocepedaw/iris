@@ -111,8 +111,8 @@ INSERT INTO `plan` VALUES
     (37,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
     (38,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
     (39,'demo-test-other-app-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
-    (40,'demo-test-bar','2017-01-25 23:25:46',1,NULL,'Test plan for e2e email incident test',1,900,10,300,300,NULL,NULL,NULL,0),
-    (41,'Oncall test','2018-01-26 22:32:04',1,NULL,'Test plan for Oncall Iris integration',1,900,10,300,300,NULL,NULL,NULL,0);
+    (40,'demo-test-bar','2017-01-25 23:25:46',1,NULL,'Test plan for e2e email incident test',1,900,10,300,300,NULL,NULL,NULL,1),
+    (41,'Oncall test','2018-01-26 22:32:04',1,NULL,'Test plan for Oncall Iris integration',1,900,10,300,300,NULL,NULL,NULL,1);
 UNLOCK TABLES;
 
 LOCK TABLES `plan_active` WRITE;
