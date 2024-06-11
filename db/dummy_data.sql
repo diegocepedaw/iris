@@ -63,6 +63,10 @@ UNLOCK TABLES;
 LOCK TABLES `dynamic_plan_map` WRITE;
 UNLOCK TABLES;
 
+LOCK TABLES `dynamic_tracking_notification` WRITE;
+UNLOCK TABLES;
+
+
 LOCK TABLES `generic_message_sent_status` WRITE;
 UNLOCK TABLES;
 
