@@ -2185,6 +2185,20 @@ class Incidents(object):
                                            VALUES (:incident_id, :role_id, :target_id, :index)''',
                                         data)
 
+                    for notification in dynamic_tracking_notifications:
+                        mode_id = mode_ids[notification['mode']]
+                        data = {
+                            'incident_id': incident_id,
+                            'application_id': app['id'],
+                            'destination': notification['destination'],
+                            'mode_id': mode_id
+                        }
+
+                        session.execute(
+                            """ INSERT INTO dynamic_tracking_notification (incident_id, application_id, destination, mode_id) VALUES (:incident_id, :application_id, :destination, :mode_id)""",
+                            data,
+                        )
+
                     session.commit()
                     session.close()
                 except (InternalError, OperationalError) as e:
