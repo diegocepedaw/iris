@@ -2357,10 +2357,8 @@ class Incident(object):
 
             cursor.execute(single_incident_query_tags, incident['id'])
             incident['tags'] = cursor.fetchall()
-            connection.close()
 
             incident['context'] = ujson.loads(incident['context'])
-            # TODO: UNCOMMENT
             # retrieve dynamic_tracking_notification for each incident
             incident['dynamic_tracking'] = []
             try:
@@ -2373,6 +2371,7 @@ class Incident(object):
             except Exception as e:
                 logger.exception('Failed to retrieve dynamic tracking notifications for incident %s', incident_id)
                 print(e)
+            connection.close()
             payload = ujson.dumps(incident)
         else:
             connection.close()
