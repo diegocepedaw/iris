@@ -2361,16 +2361,12 @@ class Incident(object):
             incident['context'] = ujson.loads(incident['context'])
             # retrieve dynamic_tracking_notification for each incident
             incident['dynamic_tracking'] = []
-            try:
-                cursor.execute(incident_dynamic_tracking_notifications_query, [(incident_id,)])
-                dynamic_tracking_results = cursor.fetchall()
+            cursor.execute(incident_dynamic_tracking_notifications_query, [(incident_id,)])
+            dynamic_tracking_results = cursor.fetchall()
+            if dynamic_tracking_results:
+                for tracking in dynamic_tracking_results:
+                    incident['dynamic_tracking'].append(tracking)
 
-                if dynamic_tracking_results:
-                    for tracking in dynamic_tracking_results:
-                        incident['dynamic_tracking'].append(tracking)
-            except Exception as e:
-                logger.exception('Failed to retrieve dynamic tracking notifications for incident %s', incident_id)
-                print(e)
             connection.close()
             payload = ujson.dumps(incident)
         else:
