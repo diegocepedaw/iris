@@ -240,6 +240,11 @@ WHERE `comment`.`incident_id` = %s
 
 single_incident_query_tags = '''SELECT `name`, `value` from `incident_metadata_tag` where `incident_metadata_tag`.`incident_id` = %s'''
 
+incident_dynamic_tracking_notifications_query = '''SELECT `incident_id`, `application_id`, `application`.`name` as app_name, `destination`, `mode_id`, `mode`.`name` as mode_name
+        FROM `dynamic_tracking_notification` JOIN `application` ON `application`.`id` = `dynamic_tracking_notification`.`application_id`
+        JOIN `mode` ON `mode`.`id` = `dynamic_tracking_notification`.`mode_id`
+        WHERE `dynamic_tracking_notification`.`incident_id` IN %s'''
+
 plan_columns = {
     'id': '`plan`.`id` as `id`',
     'name': '`plan`.`name` as `name`',
@@ -250,6 +255,7 @@ plan_columns = {
     'tracking_type': '`plan`.`tracking_type` as `tracking_type`',
     'tracking_key': '`plan`.`tracking_key` as `tracking_key`',
     'tracking_template': '`plan`.`tracking_template` as `tracking_template`',
+    'dynamic_tracking': '`plan`.`dynamic_tracking` as `dynamic_tracking`',
     'description': '`plan`.`description` as `description`',
     'created': 'UNIX_TIMESTAMP(`plan`.`created`) as `created`',
     'creator': '`target`.`name` as `creator`',
@@ -302,7 +308,8 @@ single_plan_query = '''SELECT `plan`.`id` as `id`, `plan`.`name` as `name`,
     `plan`.`description` as `description`, UNIX_TIMESTAMP(`plan`.`created`) as `created`,
     `target`.`name` as `creator`, IF(`plan_active`.`plan_id` IS NULL, FALSE, TRUE) as `active`,
     `plan`.`tracking_type` as `tracking_type`, `plan`.`tracking_key` as `tracking_key`,
-    `plan`.`tracking_template` as `tracking_template`
+    `plan`.`tracking_template` as `tracking_template`,
+    `plan`.`dynamic_tracking` as `dynamic_tracking`
 FROM `plan` JOIN `target` ON `plan`.`user_id` = `target`.`id`
 LEFT OUTER JOIN `plan_active` ON `plan`.`id` = `plan_active`.`plan_id`'''
 
@@ -378,7 +385,7 @@ single_template_query_tags = '''SELECT `name`, `value` from `template_metadata_t
 insert_plan_query = '''INSERT INTO `plan` (
     `user_id`, `name`, `created`, `description`, `step_count`,
     `threshold_window`, `threshold_count`, `aggregation_window`,
-    `aggregation_reset`, `tracking_key`, `tracking_type`, `tracking_template`
+    `aggregation_reset`, `tracking_key`, `tracking_type`, `tracking_template`, `dynamic_tracking`
 ) VALUES (
     (SELECT `id` FROM `target` where `name` = :creator AND `type_id` = (
       SELECT `id` FROM `target_type` WHERE `name` = 'user'
@@ -393,7 +400,8 @@ insert_plan_query = '''INSERT INTO `plan` (
     :aggregation_reset,
     :tracking_key,
     :tracking_type,
-    :tracking_template
+    :tracking_template,
+    :dynamic_tracking
 )'''
 
 insert_plan_step_query = '''INSERT INTO `plan_notification` (
@@ -7125,8 +7133,10 @@ class InternalIncidents():
         resp.body = ujson.dumps(incident_ids)
 
     def on_post(self, req, resp, node_id):
-
-        body = ujson.loads(req.context['body'])
+        try:
+            body = ujson.loads(req.context['body'])
+        except ValueError:
+            raise falcon.HTTPBadRequest('Invalid JSON', 'Could not parse the request body as JSON.')
 
         if 'incident_ids' not in body:
             raise HTTPBadRequest('Missing incident ids in POST body')
@@ -7137,14 +7147,27 @@ class InternalIncidents():
         if len(body['incident_ids']) < 1:
             raise HTTPBadRequest('incident_ids list cannot be empty')
 
-        query = incident_query % ', '.join(incident_columns[f] for f in incident_columns)
-        query += ' WHERE `incident`.`active` = 1 AND `incident`.`id` IN %s'
         sql_values = [tuple(body['incident_ids'])]
         connection = db.engine.raw_connection()
         cursor = connection.cursor(db.ss_dict_cursor)
+        # retrieve dynamic_tracking_notification for each incident
+        cursor.execute(incident_dynamic_tracking_notifications_query, sql_values)
+        dynamic_tracking_results = cursor.fetchall()
+
+        # retrieve incidents
+        query = incident_query % ', '.join(incident_columns[f] for f in incident_columns)
+        query += ' WHERE `incident`.`active` = 1 AND `incident`.`id` IN %s'
         cursor.execute(query, sql_values)
+        results = []
+        for incident in cursor:
+            incident['context'] = ujson.loads(incident['context'])
+            incident['dynamic_tracking'] = []
+            for tracking in dynamic_tracking_results:
+                if incident['id'] == tracking.get('incident_id'):
+                    incident['dynamic_tracking'].append(tracking)
+            results.append(incident)
         resp.status = HTTP_200
-        resp.body = ujson.dumps(stream_incidents_with_context(cursor, False))
+        resp.body = ujson.dumps(results)
         cursor.close()
         connection.close()
 
