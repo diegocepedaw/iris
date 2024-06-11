@@ -259,8 +259,8 @@ CREATE TABLE `dynamic_tracking_notification` (
   `mode_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ix_dynamic_tracking_notification_incident_id` (`incident_id`),
-  KEY `ix_dynamic_tracking_application_id` (`application_id`),
-  KEY `ix_dynamic_tracking_mode_id` (`mode_id`)
+  KEY `ix_dynamic_tracking_notification_application_id` (`application_id`),
+  KEY `ix_dynamic_tracking_notification_mode_id` (`mode_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
