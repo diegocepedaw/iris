@@ -3490,6 +3490,7 @@ def test_dynamic_tracking_notification(sample_plan_name, sample_application_name
     re = requests.post(base_url + 'incidents',
                        json={"plan": sample_plan_name, "context": {}, "dynamic_tracking_notifications": [{"mode": "slack", "destination": "#iris-slack-testing"}]},
                        headers={'Authorization': 'hmac %s:abc' % sample_application_name})
+    assert re.json() == {}
     assert re.status_code == 201
     incident_id = re.json()
     assert incident_id
