@@ -240,7 +240,7 @@ WHERE `comment`.`incident_id` = %s
 
 single_incident_query_tags = '''SELECT `name`, `value` from `incident_metadata_tag` where `incident_metadata_tag`.`incident_id` = %s'''
 
-incident_dynamic_tracking_notifications_query = '''SELECT `incident_id`, `application_id`, `application`.`name` as app_name, `destination`, `mode_id`, `mode`.`name` as mode_name
+incident_dynamic_tracking_notifications_query = '''SELECT `application_id`, `application`.`name` as app_name, `destination`, `mode_id`, `mode`.`name` as mode_name
         FROM `dynamic_tracking_notification` JOIN `application` ON `application`.`id` = `dynamic_tracking_notification`.`application_id`
         JOIN `mode` ON `mode`.`id` = `dynamic_tracking_notification`.`mode_id`
         WHERE `dynamic_tracking_notification`.`incident_id` IN %s'''
@@ -2082,7 +2082,7 @@ class Incidents(object):
                 ''', {'plan_id': plan_id}).scalar()
 
                 if not dynamic_tracking_plan:
-                    raise HTTPBadRequest('Invalid plan', 'Plan does not have dynamic tracking enabled')
+                    raise HTTPBadRequest('Invalid plan for dynamic tracking', 'Plan does not have dynamic tracking enabled')
 
             # Support overriding the app which created this incident
             if 'application' in incident_params:
@@ -7244,9 +7244,10 @@ class InternalIncidents():
         for incident in cursor:
             incident['context'] = ujson.loads(incident['context'])
             incident['dynamic_tracking'] = []
-            for tracking in dynamic_tracking_results:
-                if incident['id'] == tracking.get('incident_id'):
-                    incident['dynamic_tracking'].append(tracking)
+            if dynamic_tracking_results:
+                for tracking in dynamic_tracking_results:
+                    if incident['id'] == tracking.get('incident_id'):
+                        incident['dynamic_tracking'].append(tracking)
             results.append(incident)
         resp.status = HTTP_200
         resp.body = ujson.dumps(results)

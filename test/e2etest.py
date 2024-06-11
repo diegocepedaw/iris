@@ -3477,6 +3477,29 @@ def test_get_allowed_tags(superuser_application):
     assert response == expected
 
 
+def test_dynamic_tracking_notification(sample_plan_name, sample_application_name, superuser_application):
+
+    # create an incident with dynamic tracking notification agaings a plan that doesn't have them enabled
+    re = requests.post(base_url + 'incidents',
+                       json={"plan": "demo-test-foo", "context": {}, "dynamic_tracking_notifications": [{"mode": "slack", "destination": "#iris-slack-testing"}]},
+                       headers={'Authorization': 'hmac %s:abc' % sample_application_name})
+    assert re.status_code == 400
+    assert re.json()['title'] == 'Invalid plan for dynamic tracking'
+
+    # create an incident
+    re = requests.post(base_url + 'incidents',
+                       json={"plan": "demo-test-incident-post", "context": {}, "dynamic_tracking_notifications": [{"mode": "slack", "destination": "#iris-slack-testing"}]},
+                       headers={'Authorization': 'hmac %s:abc' % sample_application_name})
+    assert re.status_code == 201
+    incident_id = re.json()
+    assert incident_id
+
+    re = requests.get(base_url + 'incidents/%d' % incident_id)
+    assert re.status_code == 200
+    response = re.json()
+    assert response['dynamic_tracking_notifications'] == [{"mode": "slack", "destination": "#iris-slack-testing"}]
+
+
 def test_create_incident_by_email(sample_application_name, sample_plan_name, sample_plan_name2, sample_admin_user):
     if not sample_application_name or not sample_plan_name or not sample_plan_name2 or not sample_email:
         pytest.skip('We do not have enough data in DB to do this test')
