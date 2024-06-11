@@ -2363,7 +2363,10 @@ class Incident(object):
             # TODO: UNCOMMENT
             # retrieve dynamic_tracking_notification for each incident
             incident['dynamic_tracking'] = []
-            # cursor.execute(incident_dynamic_tracking_notifications_query, [(incident_id,)])
+            try:
+                cursor.execute(incident_dynamic_tracking_notifications_query, [(incident_id,)])
+            except Exception:
+                logger.exception('Failed to retrieve dynamic tracking notifications for incident %s', incident_id)
             # dynamic_tracking_results = cursor.fetchall()
             # print("aaa", dynamic_tracking_results, "aaa")
             # if not dynamic_tracking_results:
