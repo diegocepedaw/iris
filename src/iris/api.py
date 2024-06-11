@@ -2143,6 +2143,13 @@ class Incidents(object):
             if not app_template_count:
                 raise HTTPBadRequest('No plan template actions exist for this app')
 
+            if len(dynamic_tracking_notifications) > 0:
+                mode_results = session.execute('SELECT `id`, `name` FROM `mode`')
+                mode_ids = {row['name']: row['id'] for row in mode_results}
+                for notification in dynamic_tracking_notifications:
+                    if notification['mode'] not in mode_ids:
+                        raise HTTPBadRequest('invalid mode %s specified for dynamic_tracking_notifications' % notification['mode'])
+
         # To try to avoid deadlocks, split the inserts into their own session
         retries = 0
         max_retries = 10
@@ -2339,6 +2346,12 @@ class Incident(object):
             connection.close()
 
             incident['context'] = ujson.loads(incident['context'])
+            # retrieve dynamic_tracking_notification for each incident
+            cursor.execute(incident_dynamic_tracking_notifications_query, [(incident['id'],)])
+            dynamic_tracking_results = cursor.fetchall()
+            incident['dynamic_tracking'] = []
+            for tracking in dynamic_tracking_results:
+                incident['dynamic_tracking'].append(tracking)
             payload = ujson.dumps(incident)
         else:
             connection.close()
