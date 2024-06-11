@@ -66,7 +66,6 @@ UNLOCK TABLES;
 LOCK TABLES `dynamic_tracking_notification` WRITE;
 UNLOCK TABLES;
 
-
 LOCK TABLES `generic_message_sent_status` WRITE;
 UNLOCK TABLES;
 
@@ -98,21 +97,21 @@ UNLOCK TABLES;
 
 LOCK TABLES `plan` WRITE;
 INSERT INTO `plan` VALUES
-    (1,'demo-test-foo','2017-01-25 23:23:55',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,1),
-    (7,'demo-test-incident-post','2017-01-25 23:23:55',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (8,'demo-test-incident-post','2017-01-25 23:23:56',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (11,'demo-test-foo','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,1),
-    (17,'demo-test-incident-post','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (18,'demo-test-incident-post','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (21,'demo-test-foo','2017-01-25 23:26:44',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,1),
-    (27,'demo-test-incident-post','2017-01-25 23:26:44',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (28,'demo-test-incident-post','2017-01-25 23:26:45',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (31,'demo-test-foo','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,1),
-    (37,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (38,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,1),
+    (1,'demo-test-foo','2017-01-25 23:23:55',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,0),
+    (7,'demo-test-incident-post','2017-01-25 23:23:55',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (8,'demo-test-incident-post','2017-01-25 23:23:56',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (11,'demo-test-foo','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,0),
+    (17,'demo-test-incident-post','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (18,'demo-test-incident-post','2017-01-25 23:25:46',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (21,'demo-test-foo','2017-01-25 23:26:44',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,0),
+    (27,'demo-test-incident-post','2017-01-25 23:26:44',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (28,'demo-test-incident-post','2017-01-25 23:26:45',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (31,'demo-test-foo','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',2,900,10,300,300,NULL,NULL,NULL,0),
+    (37,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (38,'demo-test-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
     (39,'demo-test-other-app-incident-post','2017-01-25 23:30:34',1,NULL,'Test plan for e2e test',1,900,10,300,300,NULL,NULL,NULL,0),
-    (40,'demo-test-bar','2017-01-25 23:25:46',1,NULL,'Test plan for e2e email incident test',1,900,10,300,300,NULL,NULL,NULL,1),
-    (41,'Oncall test','2018-01-26 22:32:04',1,NULL,'Test plan for Oncall Iris integration',1,900,10,300,300,NULL,NULL,NULL,1);
+    (40,'demo-test-bar','2017-01-25 23:25:46',1,NULL,'Test plan for e2e email incident test',1,900,10,300,300,NULL,NULL,NULL,0),
+    (41,'Oncall test','2018-01-26 22:32:04',1,NULL,'Test plan for Oncall Iris integration',1,900,10,300,300,NULL,NULL,NULL,0);
 UNLOCK TABLES;
 
 LOCK TABLES `plan_active` WRITE;
