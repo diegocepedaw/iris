@@ -1503,7 +1503,45 @@ def test_post_dynamic_incident(sample_user, sample_team, sample_application_name
     assert re.status_code == 201
     re = requests.get(base_url + 'incidents/%s' % incident_id)
     assert re.status_code == 200
-    assert re.json() == {'owner': sample_user, 'incident_id': incident_id, 'active': False}
+
+    incident_data = {
+        'plan_id': 55,
+        'plan': 'demo-test-incident-dynamic-post',
+        'updated': None,
+        'context': {
+            'fabric': None,
+            'console_url': None,
+            'filename': None,
+            'name': None,
+            'graph_image_url': None,
+            'zones': None,
+            'nodes': None,
+            'metanodes': None,
+            'notes': None
+        },
+        'owner': None,
+        'application': 'Autoalerts',
+        'current_step': 0,
+        'active': 1,
+        'resolved': 0,
+        'steps': [],
+        'comments': [],
+        'tags': [],
+        'dynamic_tracking': [
+            {
+                'application_id': 8,
+                'application': 'Autoalerts',
+                'destination': '#iris-slack-testing',
+                'mode_id': 17,
+                'mode': 'slack'
+            }
+        ]
+    }
+
+    incident_response = re.json()
+    incident_response.pop('created')
+    incident_response.pop('id')
+    assert re.json() == incident_data
 
     # Claim
     re = requests.post(base_url + 'incidents/%d' % (incident_id, ), json={
