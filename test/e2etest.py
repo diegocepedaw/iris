@@ -1325,14 +1325,14 @@ def test_delete_plan(sample_user, sample_team, sample_template_name, sample_appl
     assert 'incidents have been created using it' in re.json()['title']
 
 
-def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_template_name):
+def test_restricted_plan(sample_user2, sample_admin_user, sample_team, sample_template_name):
 
     with iris_ctl.db_from_config(sample_db_config) as (conn, cursor):
-        cursor.execute('INSERT INTO `plan_restricted` VALUES("restricted-plan")')
+        cursor.execute('INSERT INTO `plan_restricted` VALUES("restricted")')
 
     data = {
         'creator': sample_admin_user,
-        'name': 'restricted-plan',
+        'name': 'restricted',
         'description': 'Test plan for e2e test',
         'threshold_window': 900,
         'threshold_count': 10,
@@ -1361,8 +1361,8 @@ def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_tem
 
     # test creating a restricted plan
     data = {
-        'creator': sample_user,
-        'name': 'restricted-plan',
+        'creator': sample_user2,
+        'name': 'restricted',
         'description': 'Test plan for e2e test',
         'threshold_window': 900,
         'threshold_count': 10,
@@ -1384,7 +1384,7 @@ def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_tem
     }
 
     # Test creating and deleting by ID
-    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_user))
+    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_user2))
     assert re.status_code == 401
 
 
