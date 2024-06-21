@@ -1325,34 +1325,10 @@ def test_delete_plan(sample_user, sample_team, sample_template_name, sample_appl
     assert 'incidents have been created using it' in re.json()['title']
 
 
-def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_template_name, sample_application_name):
-    # test creating a restricted plan
-    data = {
-        'creator': sample_user,
-        'name': 'restricted-plan',
-        'description': 'Test plan for e2e test',
-        'threshold_window': 900,
-        'threshold_count': 10,
-        'aggregation_window': 300,
-        'aggregation_reset': 300,
-        'steps': [
-            [
-                {
-                    'role': 'team',
-                    'target': sample_team,
-                    'priority': 'low',
-                    'wait': 600,
-                    'repeat': 0,
-                    'template': sample_template_name
-                },
-            ],
-        ],
-        'isValid': True
-    }
+def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_template_name):
 
-    # Test creating and deleting by ID
-    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_user))
-    assert re.status_code == 401
+    with iris_ctl.db_from_config(sample_db_config) as (conn, cursor):
+        cursor.execute('INSERT INTO `plan_restricted` VALUES("restricted-plan")')
 
     data = {
         'creator': sample_admin_user,
@@ -1382,6 +1358,34 @@ def test_restricted_plan(sample_user, sample_admin_user, sample_team, sample_tem
     assert re.status_code == 201
     plan_id = int(re.content.strip())
     assert plan_id
+
+    # test creating a restricted plan
+    data = {
+        'creator': sample_user,
+        'name': 'restricted-plan',
+        'description': 'Test plan for e2e test',
+        'threshold_window': 900,
+        'threshold_count': 10,
+        'aggregation_window': 300,
+        'aggregation_reset': 300,
+        'steps': [
+            [
+                {
+                    'role': 'team',
+                    'target': sample_team,
+                    'priority': 'low',
+                    'wait': 600,
+                    'repeat': 0,
+                    'template': sample_template_name
+                },
+            ],
+        ],
+        'isValid': True
+    }
+
+    # Test creating and deleting by ID
+    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_user))
+    assert re.status_code == 401
 
 
 def test_post_invalid_step_role(sample_user, sample_team, sample_template_name):
