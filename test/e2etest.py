@@ -169,6 +169,16 @@ def sample_admin_user():
 
 
 @pytest.fixture(scope='module')
+def sample_non_admin_user():
+    '''List of iris messages'''
+    with iris_ctl.db_from_config(sample_db_config) as (conn, cursor):
+        cursor.execute('SELECT `name` FROM `target` JOIN `user` on `target`.`id` = `user`.`target_id` WHERE `user`.`admin` = FALSE LIMIT 1')
+        result = cursor.fetchone()
+        if result:
+            return result[0]
+
+
+@pytest.fixture(scope='module')
 def sample_team(iris_teams):
     '''First team in our list of iris teams whose length is long enough for filtering'''
     for team in iris_teams:
@@ -1325,10 +1335,7 @@ def test_delete_plan(sample_user, sample_team, sample_template_name, sample_appl
     assert 'incidents have been created using it' in re.json()['title']
 
 
-def test_restricted_plan(sample_user2, sample_admin_user, sample_team, sample_template_name):
-
-    with iris_ctl.db_from_config(sample_db_config) as (conn, cursor):
-        cursor.execute('INSERT INTO `plan_restricted` VALUES("restricted")')
+def test_restricted_plan(sample_non_admin_user, sample_admin_user, sample_team, sample_template_name):
 
     data = {
         'creator': sample_admin_user,
@@ -1361,7 +1368,7 @@ def test_restricted_plan(sample_user2, sample_admin_user, sample_team, sample_te
 
     # test creating a restricted plan
     data = {
-        'creator': sample_user2,
+        'creator': sample_non_admin_user,
         'name': 'restricted',
         'description': 'Test plan for e2e test',
         'threshold_window': 900,
@@ -1384,7 +1391,7 @@ def test_restricted_plan(sample_user2, sample_admin_user, sample_team, sample_te
     }
 
     # Test creating and deleting by ID
-    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_user2))
+    re = requests.post(base_url + 'plans', json=data, headers=username_header(sample_non_admin_user))
     assert re.status_code == 401
 
 

@@ -125,7 +125,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `plan_restricted` WRITE;
 INSERT INTO `plan_restricted` VALUES
-    ('restricted-plan');
+    ('restricted');
 UNLOCK TABLES;
 
 LOCK TABLES `plan_notification` WRITE;
