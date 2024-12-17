@@ -3888,7 +3888,8 @@ def test_ui_routes_redirect(sample_user, sample_admin_user):
 
     # add sso header, this should prevent login flow from happening
     re = requests.get(ui_url + 'user', allow_redirects=False, headers={'SSO-DEBUG-HEADER': sample_user})
-    assert re.status_code == 200
+    assert re.status_code == 302
+    assert re.headers['Location'] == '/incidents'
 
 
 def test_ui_route_login_page(sample_user, sample_admin_user):
